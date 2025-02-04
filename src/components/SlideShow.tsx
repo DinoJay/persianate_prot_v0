@@ -15,48 +15,6 @@ interface Entity {
     featuredImage: string
 }
 
-const entities: Entity[] = [
-    {
-        id: "poi-1",
-        name: "Persepolis",
-        description: "Ancient ceremonial capital of the Achaemenid Empire.",
-        type: "POI",
-        icon: "https://example.com/persepolis-icon.png",
-        featuredImage: "https://example.com/persepolis.jpg",
-    },
-    {
-        id: "poi-2",
-        name: "Naqsh-e Jahan Square",
-        description: "A UNESCO World Heritage Site in Isfahan.",
-        type: "POI",
-        icon: "https://example.com/naqsh-e-jahan-icon.png",
-        featuredImage: "https://example.com/naqsh-e-jahan.jpg",
-    },
-    {
-        id: "person-1",
-        name: "Asghar Farhadi",
-        description: "Acclaimed Iranian film director.",
-        type: "Person",
-        icon: "https://example.com/asghar-farhadi-icon.png",
-        featuredImage: "https://example.com/asghar-farhadi.jpg",
-    },
-    {
-        id: "film-1",
-        name: "A Separation",
-        description: "An award-winning Iranian drama directed by Asghar Farhadi.",
-        type: "Film",
-        icon: "https://example.com/a-separation-icon.png",
-        featuredImage: "https://example.com/a-separation.jpg",
-    },
-    {
-        id: "book-1",
-        name: "The Windward",
-        description: "A novel by Sadegh Hedayat exploring existential themes.",
-        type: "Book",
-        icon: "https://example.com/windward-icon.png",
-        featuredImage: "https://example.com/windward.jpg",
-    },
-]
 
 export default function PersianCulturePreview({ selectedId, onCardClick }: { selectedId: string, onCardClick: (id: string) => void }) {
 
