@@ -6,14 +6,6 @@ import mockData from "@/mock-data.json"
 import { useEffect } from "react"
 import { cn } from "@/lib/utils"
 
-interface Entity {
-    id: string
-    name: string
-    description: string
-    type: string
-    icon: string
-    featuredImage: string
-}
 
 
 export default function PersianCulturePreview({ selectedId, onCardClick }: { selectedId: string, onCardClick: (id: string) => void }) {
