@@ -5,10 +5,11 @@ import { Badge } from "@/components/ui/badge"
 import mockData from "@/mock-data.json"
 import { useEffect } from "react"
 import { cn } from "@/lib/utils"
+import Image from "next/image"
 
 
 
-export default function PersianCulturePreview({ selectedId, onCardClick }: { selectedId: string, onCardClick: (id: string) => void }) {
+export default function PersianCulturePreview({ selectedId, onCardClick }: { selectedId: string | null, onCardClick: (id: string) => void }) {
 
     useEffect(() => {
         console.log('yeah', selectedId)
@@ -35,15 +36,23 @@ export default function PersianCulturePreview({ selectedId, onCardClick }: { sel
                         onClick={() => onCardClick(entity.id)}
                     >
                         <CardHeader>
-                            <img
+                            <Image
                                 src={entity.featuredImage || "/placeholder.svg"}
-                                alt={entity.name}
+                                alt={entity.name || ""}
+                                width={200}
+                                height={100}
                                 className="h-[100px] w-full object-cover rounded-t-lg"
                             />
                         </CardHeader>
                         <CardContent>
                             <div className="flex items-center space-x-2">
-                                <img src={entity.icon || "/placeholder.svg"} alt={`${entity.name} icon`} className="w-6 h-6" />
+                                <Image
+                                    src={entity.icon || "/placeholder.svg"}
+                                    alt={`${entity.name} icon`}
+                                    width={24}
+                                    height={24}
+                                    className="w-6 h-6"
+                                />
                                 <CardTitle>{entity.name}</CardTitle>
                             </div>
                             <CardDescription className="mt-2">{entity.description}</CardDescription>

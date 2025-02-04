@@ -25,21 +25,28 @@ function MapBox({ onMarkerClick, selectedId }: { onMarkerClick: (id: string) => 
                 zoom: 10.12
             });
 
-            mockData.entities.filter((item) => item.geoLocation).forEach((item) => {
-                // Create popup
-                const popup = new mapboxgl.Popup({ offset: 25 })
-                // .setHTML(`<h3>${item.name}</h3>`);
+            mockData.entities
+                .filter((item): item is typeof item & { geoLocation: { longitude: number, latitude: number } } =>
+                    item.geoLocation !== undefined &&
+                    typeof item.geoLocation.longitude === 'number' &&
+                    typeof item.geoLocation.latitude === 'number'
+                )
+                .forEach((item) => {
+                    if (!mapRef.current) return;
 
-                const marker = new mapboxgl.Marker({ color: 'red' })
-                    .setLngLat([item.geoLocation.longitude, item.geoLocation.latitude])
-                    .setPopup(popup)  // Attach popup to marker
-                    .addTo(mapRef.current);
+                    const popup = new mapboxgl.Popup({ offset: 25 })
+                    // .setHTML(`<h3>${item.name}</h3>`);
 
-                popup.on('open', () => {
-                    console.log(item.id);
-                    onMarkerClick(item.id);
+                    new mapboxgl.Marker({ color: 'red' })
+                        .setLngLat([item.geoLocation.longitude, item.geoLocation.latitude])
+                        .setPopup(popup)  // Attach popup to marker
+                        .addTo(mapRef.current);
+
+                    popup.on('open', () => {
+                        console.log(item.id);
+                        onMarkerClick(item.id);
+                    });
                 });
-            });
         }
 
         return () => {
@@ -47,7 +54,7 @@ function MapBox({ onMarkerClick, selectedId }: { onMarkerClick: (id: string) => 
                 mapRef.current.remove()
             }
         }
-    }, [])  // Add back onMarkerClick dependency
+    }, [onMarkerClick])  // Add back onMarkerClick dependency
 
     useEffect(() => {
         console.log('selectedId', selectedId)
@@ -55,14 +62,14 @@ function MapBox({ onMarkerClick, selectedId }: { onMarkerClick: (id: string) => 
 
     useEffect(() => {
         if (selectedId && mapRef.current) {
-            const selectedLocation = mockData.entities.find(item => item.id === selectedId)?.geoLocation;
-            if (selectedLocation) {
-                // Calculate offset to position point in last third
-                const offset = [0, window.innerHeight / 5]; // Negative x value moves point left
-
+            const selectedLocation = mockData.entities
+                .find(item => item.id === selectedId)
+                ?.geoLocation;
+            if (selectedLocation?.longitude && selectedLocation?.latitude) {
+                const offset: [number, number] = [0, window.innerHeight / 5];
                 mapRef.current.flyTo({
                     center: [selectedLocation.longitude, selectedLocation.latitude],
-                    offset: offset,
+                    offset,
                     zoom: 12,
                     duration: 2000
                 });
