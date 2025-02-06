@@ -54,7 +54,7 @@ function MapBox({ onMarkerClick, selectedId }: { onMarkerClick: (id: string) => 
                 mapRef.current.remove()
             }
         }
-    }, [onMarkerClick])  // Add back onMarkerClick dependency
+    }, [])  // Add back onMarkerClick dependency
 
     useEffect(() => {
         console.log('selectedId', selectedId)

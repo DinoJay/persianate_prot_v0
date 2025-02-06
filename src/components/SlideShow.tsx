@@ -37,7 +37,8 @@ export default function PersianCulturePreview({ selectedId, onCardClick }: { sel
                     >
                         <CardHeader>
                             <Image
-                                src={entity.featuredImage || "/placeholder.svg"}
+                                // src={entity.featuredImage || "/poi_placeholder.svg"}
+                                src={"/poi_placeholder.svg"}
                                 alt={entity.name || ""}
                                 width={200}
                                 height={100}
@@ -45,17 +46,20 @@ export default function PersianCulturePreview({ selectedId, onCardClick }: { sel
                             />
                         </CardHeader>
                         <CardContent>
-                            <div className="flex items-center space-x-2">
+                            <div className="flex items-center truncate line-clamp-1 whitespace-normal">
                                 <Image
-                                    src={entity.icon || "/placeholder.svg"}
+                                    src={"/poi_placeholder.svg"}
+                                    // src={entity.icon || "/poi_placeholder.svg"}
                                     alt={`${entity.name} icon`}
                                     width={24}
                                     height={24}
-                                    className="w-6 h-6"
+                                    className="w-6 h-6 mr-2"
                                 />
                                 <CardTitle>{entity.name}</CardTitle>
                             </div>
-                            <CardDescription className="mt-2">{entity.description}</CardDescription>
+                            <CardDescription className="mt-2 truncate whitespace-normal line-clamp-2">
+                                {entity.description}
+                            </CardDescription>
                         </CardContent>
                         <CardFooter>
                             <Badge>{entity.type}</Badge>
