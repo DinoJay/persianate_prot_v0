@@ -57,6 +57,32 @@ function MapBox({ onMarkerClick, selectedId }: { onMarkerClick: (id: string) => 
     }, [])  // Add back onMarkerClick dependency
 
     useEffect(() => {
+
+        mockData.entities
+            .filter((item): item is typeof item & { geoLocation: { longitude: number, latitude: number } } =>
+                item.geoLocation !== undefined &&
+                typeof item.geoLocation.longitude === 'number' &&
+                typeof item.geoLocation.latitude === 'number'
+            )
+            .forEach((item) => {
+                if (!mapRef.current) return;
+
+                const popup = new mapboxgl.Popup({ offset: 25 })
+                // .setHTML(`<h3>${item.name}</h3>`);
+
+                new mapboxgl.Marker({ color: 'red' })
+                    .setLngLat([item.geoLocation.longitude, item.geoLocation.latitude])
+                    .setPopup(popup)  // Attach popup to marker
+                    .addTo(mapRef.current);
+
+                popup.on('open', () => {
+                    console.log(item.id);
+                    onMarkerClick(item.id);
+                });
+            });
+    }, [onMarkerClick])
+
+    useEffect(() => {
         console.log('selectedId', selectedId)
     }, [selectedId])
 
