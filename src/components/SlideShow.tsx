@@ -1,18 +1,26 @@
 "use client"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
+import { useAutoAnimate } from '@formkit/auto-animate/react'
+
 import { Badge } from "@/components/ui/badge"
 import mockData from "@/mock-data.json"
 import { useEffect } from "react"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
 
-
-
-export default function PersianCulturePreview({ selectedId, onCardClick }: { selectedId: string | null, onCardClick: (id: string) => void }) {
-
+export default function SlideShow({
+    selectedId,
+    onCardClick,
+    cls,
+    data
+}: {
+    selectedId: string | null;
+    onCardClick: (id: string) => void;
+    cls: string;
+    data: any[];  // Replace 'any' with proper type from your mock data
+}) {
     useEffect(() => {
-        console.log('yeah', selectedId)
         if (selectedId) {
             const card = document.querySelector(`[data-id="${selectedId}"]`);
             if (card) {
@@ -23,52 +31,55 @@ export default function PersianCulturePreview({ selectedId, onCardClick }: { sel
                 });
             }
         }
-    }, [selectedId])
+    }, [selectedId]);
 
     return (
-        <ScrollArea className="w-full whitespace-nowrap ">
-            <div className="flex w-max space-x-4 p-4">
-                {mockData.entities.filter(d => d.geoLocation).map((entity) => (
-                    <Card
-                        key={entity.id}
-                        className={cn("w-[200px]", selectedId === entity.id ? "border-2 border-black" : "")}
-                        data-id={entity.id}
-                        onClick={() => onCardClick(entity.id)}
-                    >
-                        <CardHeader>
+        <div className={cn("flex space-x-4 px-4 w-full overflow-x-auto overflow-y-hidden relative items-end", cls)}>
+            {data.filter(d => d.geoLocation).map((entity) => (
+                <Card
+                    key={entity.id}
+                    className={cn(
+                        "w-[200px] pointer-events-auto transition-all flex-none cursor-pointer",
+                        selectedId === entity.id ? "mb-3 " : " rounded-b-none overflow-hidden"
+                    )}
+                    style={{
+                        height: selectedId === entity.id ? "300px" : "100px",
+                    }}
+                    data-id={entity.id}
+                    onClick={() => onCardClick(entity.id)}
+                >
+                    <CardHeader>
+                        <Image
+                            // src={entity.featuredImage || "/poi_placeholder.svg"}
+                            src={"/poi_placeholder.svg"}
+                            alt={entity.name || ""}
+                            width={200}
+                            height={100}
+                            className="h-[100px] w-full object-cover rounded-t-lg"
+                        />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="flex items-center truncate line-clamp-1 whitespace-normal">
                             <Image
-                                // src={entity.featuredImage || "/poi_placeholder.svg"}
                                 src={"/poi_placeholder.svg"}
-                                alt={entity.name || ""}
-                                width={200}
-                                height={100}
-                                className="h-[100px] w-full object-cover rounded-t-lg"
+                                // src={entity.icon || "/poi_placeholder.svg"}
+                                alt={`${entity.name} icon`}
+                                width={24}
+                                height={24}
+                                className="w-6 h-6 mr-2"
                             />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="flex items-center truncate line-clamp-1 whitespace-normal">
-                                <Image
-                                    src={"/poi_placeholder.svg"}
-                                    // src={entity.icon || "/poi_placeholder.svg"}
-                                    alt={`${entity.name} icon`}
-                                    width={24}
-                                    height={24}
-                                    className="w-6 h-6 mr-2"
-                                />
-                                <CardTitle>{entity.name}</CardTitle>
-                            </div>
-                            <CardDescription className="mt-2 truncate whitespace-normal line-clamp-2">
-                                {entity.description}
-                            </CardDescription>
-                        </CardContent>
-                        <CardFooter>
-                            <Badge>{entity.type}</Badge>
-                        </CardFooter>
-                    </Card>
-                ))}
-            </div>
-            <ScrollBar orientation="horizontal" />
-        </ScrollArea>
-    )
+                            <CardTitle>{entity.name}</CardTitle>
+                        </div>
+                        <CardDescription className="mt-2 truncate whitespace-normal line-clamp-2">
+                            {entity.description}
+                        </CardDescription>
+                    </CardContent>
+                    <CardFooter>
+                        <Badge>{entity.type}</Badge>
+                    </CardFooter>
+                </Card>
+            ))}
+        </div>
+    );
 }
 

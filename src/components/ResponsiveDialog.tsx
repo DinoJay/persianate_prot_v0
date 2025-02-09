@@ -40,7 +40,7 @@ export default function DrawerDialog({
                 {/* <DialogTrigger asChild>
                     <Button variant="outline">Edit Profile</Button>
                 </DialogTrigger> */}
-                <DialogContent className="sm:max-w-[425px]">
+                <DialogContent className="sm:max-w-[425px] sm:max-h-[700px] flex flex-col">
                     <DialogTitle>{title}</DialogTitle>
                     {/* <DialogHeader>
                         <DialogTitle>Edit profile</DialogTitle>
@@ -48,7 +48,7 @@ export default function DrawerDialog({
                             Make changes to your profile here. Click save when you're done.
                         </DialogDescription>
                     </DialogHeader> */}
-                    {children}
+                    <div className="overflow-auto">{children}</div>
                 </DialogContent>
             </Dialog>
         )
@@ -56,18 +56,19 @@ export default function DrawerDialog({
 
     return (
         <Drawer open={open} {...props}>
-            <DrawerTitle>{title}</DrawerTitle>
             {/* <DrawerTrigger asChild>
                 <Button variant="outline">Edit Profile</Button>
             </DrawerTrigger> */}
-            <DrawerContent>
+            <DrawerContent className="flex flex-col max-h-[700px]">
+                <DrawerTitle className="hidden">{title}</DrawerTitle>
                 {/* <DrawerHeader className="text-left">
                     <DrawerTitle>Edit profile</DrawerTitle>
                     <DrawerDescription>
                         Make changes to your profile here. Click save when you're done.
                     </DrawerDescription>
                 </DrawerHeader> */}
-                {children}
+
+                <div className="overflow-auto flex-1">{children}</div>
                 <DrawerFooter className="pt-2">
                     {/* <DrawerClose asChild>
                         <Button variant="outline">Cancel</Button>

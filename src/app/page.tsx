@@ -19,21 +19,26 @@ export default function Home() {
   }, [selectedId])
 
   return (
-    <div className="flex relative justify-center flex-col items-center h-screen w-screen">
+    <div className="flex-1 flex flex-col relative">
       <POIDrawer
         isOpen={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}
         selectedId={selectedId}
+        data={mockData.entities}
       />
-      <div className="absolute top-0 left-0 w-full z-10">
-        <div className="mt-3">
-          <SlideShow selectedId={selectedId} onCardClick={handleSelect} />
-        </div>
-      </div>
-      <div className="w-full flex-1">
-        <MapBox
-          onMarkerClick={id => handleSelect(id, selectedId)}
+      <div className="mt-auto w-full z-10 pointer-events-none ">
+        <SlideShow
           selectedId={selectedId}
+          onCardClick={handleSelect}
+          cls=""
+          data={mockData.entities}
+        />
+      </div>
+      <div className="absolute left-0 top-0 h-full w-full">
+        <MapBox
+          onMarkerClick={handleSelect}
+          selectedId={selectedId}
+          data={mockData.entities}
         />
       </div>
     </div>
