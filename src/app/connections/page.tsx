@@ -2,10 +2,9 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import mockData from "@/mock-data.json";
 import * as d3 from 'd3';
-import type { SimulationNodeDatum } from 'd3';
 import SlideShow from '@/components/SlideShow'
 
-type Node = SimulationNodeDatum & {
+type Node = {
     id: string;
     name: string;
     group: string;
@@ -22,7 +21,7 @@ type Link = {
 export default function TypePage() {
     const [viewBox, setViewBox] = useState("0 0 100 100");
     const [selectedId, setSelectedId] = useState<string | null>(null);
-    const simulationRef = useRef<d3.Simulation<Node, d3.SimulationLinkDatum<Node>> | null>(null);
+    const simulationRef = useRef<d3.Simulation<Node, Link> | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const slideShowRef = useRef<HTMLDivElement>(null);
     // const nodesRef = useRef(mockData.entities.map(entity => ({
@@ -48,7 +47,7 @@ export default function TypePage() {
                     source: graphNodes.find(n => n.id === entity.id)!,
                     target: graphNodes.find(n => n.id === targetId)!,
                     value: 1
-                } as Link));
+                }));
                 return [...acc, ...newLinks];
             }
             return acc;
@@ -100,10 +99,11 @@ export default function TypePage() {
 
         return `${minX} ${minY} ${width} ${height}`;
     }, [selectedId, links]);
+
     useEffect(() => {
-        simulationRef.current = d3.forceSimulation(nodes as SimulationNodeDatum[])
-            .force("link", d3.forceLink(links)
-                .id((d: SimulationNodeDatum) => (d as Node).id)
+        simulationRef.current = d3.forceSimulation<Node>(nodes)
+            .force("link", d3.forceLink<Node, Link>(links)
+                .id(d => d.id)
                 .distance(80))
             .force("charge", d3.forceManyBody()
                 .strength(-300)

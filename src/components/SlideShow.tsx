@@ -1,10 +1,7 @@
 "use client"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
-import { useAutoAnimate } from '@formkit/auto-animate/react'
 
 import { Badge } from "@/components/ui/badge"
-import mockData from "@/mock-data.json"
 import { useEffect } from "react"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
