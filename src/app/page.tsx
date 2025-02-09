@@ -1,7 +1,7 @@
 "use client";
 import { useState, useCallback } from "react";
 import MapBox from "@/components/MapBox";
-import SlideShow from "@/components/SlideShow";
+import SlideShow, { Entity } from "@/components/SlideShow";
 import { POIDrawer } from "@/components/POIDrawer";
 import mockData from "@/mock-data.json";
 
@@ -24,21 +24,31 @@ export default function Home() {
         isOpen={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}
         selectedId={selectedId}
-        data={mockData.entities}
       />
       <div className="mt-auto w-full z-10 pointer-events-none ">
         <SlideShow
           selectedId={selectedId}
           onCardClick={handleSelect}
           cls=""
-          data={mockData.entities}
+          data={mockData.entities
+            .filter((e): e is typeof e & { name: string; description: string; type: string } =>
+              Boolean(e.name && e.description && e.type)
+            )
+            .map((e): Entity => ({
+              id: e.id,
+              name: e.name,
+              description: e.description,
+              type: e.type,
+              geoLocation: e.geoLocation || undefined,
+              icon: e.icon || undefined,
+              featuredImage: e.featuredImage || undefined
+            }))}
         />
       </div>
       <div className="absolute left-0 top-0 h-full w-full">
         <MapBox
           onMarkerClick={handleSelect}
           selectedId={selectedId}
-          data={mockData.entities}
         />
       </div>
     </div>

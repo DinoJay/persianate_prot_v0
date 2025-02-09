@@ -3,16 +3,15 @@ import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import mockData from "@/mock-data.json";
 import * as d3 from 'd3';
 import SlideShow from '@/components/SlideShow'
+import type { SimulationNodeDatum } from 'd3';
 
-type Node = {
+type Node = SimulationNodeDatum & {
     id: string;
     name: string;
     group: string;
-    x?: number;
-    y?: number;
 }
 
-type Link = {
+type Link = d3.SimulationLinkDatum<Node> & {
     source: Node;
     target: Node;
     value: number;
@@ -32,22 +31,37 @@ export default function TypePage() {
 
     // Memoize static data structures
     const { nodes, links } = useMemo(() => {
-        const graphNodes = mockData.entities.map(entity => ({
-            id: entity.id,
-            name: entity.name,
-            group: entity.type
-        }));
+        const graphNodes = mockData.entities
+            .filter(entity => entity.name)  // Filter out entities without names
+            .map(entity => ({
+                id: entity.id,
+                name: entity.name,
+                group: entity.type
+            }));
 
         const graphLinks = mockData.entities.reduce((acc, entity) => {
             if (entity.links) {
                 const validLinks = entity.links.filter(targetId =>
                     mockData.entities.some(e => e.id === targetId)
                 );
-                const newLinks = validLinks.map(targetId => ({
-                    source: graphNodes.find(n => n.id === entity.id)!,
-                    target: graphNodes.find(n => n.id === targetId)!,
-                    value: 1
-                }));
+                const newLinks = validLinks.map(targetId => {
+                    const targetEntity = mockData.entities.find(e => e.id === targetId);
+                    if (!targetEntity?.name || !targetEntity?.type) return null;
+
+                    return {
+                        source: {
+                            id: entity.id,
+                            name: entity.name,
+                            group: entity.type
+                        },
+                        target: {
+                            id: targetId,
+                            name: targetEntity.name,
+                            group: targetEntity.type
+                        },
+                        value: 1
+                    } as Link;
+                }).filter((link): link is Link => link !== null);
                 return [...acc, ...newLinks];
             }
             return acc;
@@ -123,7 +137,10 @@ export default function TypePage() {
                 setViewBox(calculateViewBox());
             });
 
-        return () => simulationRef.current?.stop();
+        return () => {
+            simulationRef.current?.stop();
+            return undefined;
+        };
     }, [nodes, links, calculateViewBox]);
 
     // Get current node positions for rendering

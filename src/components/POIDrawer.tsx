@@ -21,7 +21,7 @@ export function POIDrawer({
                 <div className="p-6 overflow-y-auto">
                     <Image
                         src={"/poi_placeholder.svg"}
-                        alt={selectedPOI.name}
+                        alt={selectedPOI.name || ""}
                         width={400}
                         height={200}
                         className="w-full h-[300px] object-cover rounded-lg mb-6"
