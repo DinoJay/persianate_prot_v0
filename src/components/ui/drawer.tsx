@@ -17,7 +17,7 @@ const Drawer = ({
 const DrawerContent = React.forwardRef<
   React.ElementRef<typeof DrawerPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Content>
->(({ className, children, ...props }, ref) => (
+>(({ children, ...props }, ref) => (
   <DrawerPrimitive.Portal>
     <DrawerPrimitive.Overlay className="fixed inset-0 bg-black/40 z-50" />
     <DrawerPrimitive.Content

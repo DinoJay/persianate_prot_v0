@@ -2,9 +2,10 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import mockData from "@/mock-data.json";
 import * as d3 from 'd3';
+import type { SimulationNodeDatum } from 'd3';
 import SlideShow from '@/components/SlideShow'
 
-type Node = {
+type Node = SimulationNodeDatum & {
     id: string;
     name: string;
     group: string;
@@ -18,17 +19,17 @@ type Link = {
     value: number;
 }
 
-export default function TypePage({ params }: { params: { type: string } }) {
+export default function TypePage() {
     const [viewBox, setViewBox] = useState("0 0 100 100");
     const [selectedId, setSelectedId] = useState<string | null>(null);
-    const simulationRef = useRef<d3.Simulation<Node, Link> | null>(null);
+    const simulationRef = useRef<d3.Simulation<Node, d3.SimulationLinkDatum<Node>> | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const slideShowRef = useRef<HTMLDivElement>(null);
-    const nodesRef = useRef(mockData.entities.map(entity => ({
-        id: entity.id,
-        name: entity.name,
-        group: entity.type
-    })));
+    // const nodesRef = useRef(mockData.entities.map(entity => ({
+    //     id: entity.id,
+    //     name: entity.name,
+    //     group: entity.type
+    // })));
 
     // Memoize static data structures
     const { nodes, links } = useMemo(() => {
@@ -47,7 +48,7 @@ export default function TypePage({ params }: { params: { type: string } }) {
                     source: graphNodes.find(n => n.id === entity.id)!,
                     target: graphNodes.find(n => n.id === targetId)!,
                     value: 1
-                }));
+                } as Link));
                 return [...acc, ...newLinks];
             }
             return acc;
@@ -99,11 +100,10 @@ export default function TypePage({ params }: { params: { type: string } }) {
 
         return `${minX} ${minY} ${width} ${height}`;
     }, [selectedId, links]);
-
     useEffect(() => {
-        simulationRef.current = d3.forceSimulation<Node>(nodes)
-            .force("link", d3.forceLink<Node, Link>(links)
-                .id(d => d.id)
+        simulationRef.current = d3.forceSimulation(nodes as SimulationNodeDatum[])
+            .force("link", d3.forceLink(links)
+                .id((d: SimulationNodeDatum) => (d as Node).id)
                 .distance(80))
             .force("charge", d3.forceManyBody()
                 .strength(-300)
@@ -115,9 +115,9 @@ export default function TypePage({ params }: { params: { type: string } }) {
             .force("y", d3.forceY()
                 .strength(0.05)
                 .y((_, i) => (i - nodes.length / 2) * 0.8))
-            .force("collision", d3.forceCollide()
-                .radius(25)
-                .strength(1))
+            // .force("collision", d3.forceCollide()
+            //     .radius(25)
+            //     .strength(1))
             .alphaDecay(0.01)
             .on("tick", () => {
                 setViewBox(calculateViewBox());
