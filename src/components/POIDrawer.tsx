@@ -1,5 +1,4 @@
 "use client"
-import { Drawer, DrawerContent } from "@/components/ui/drawer"
 import mockData from "@/mock-data.json"
 import Image from "next/image"
 import ResponsiveDialog from '@/components/ResponsiveDialog'

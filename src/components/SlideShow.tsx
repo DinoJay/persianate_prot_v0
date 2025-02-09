@@ -6,6 +6,19 @@ import { useEffect } from "react"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
 
+type Entity = {
+    id: string;
+    name: string;
+    description: string;
+    type: string;
+    geoLocation?: {
+        latitude: number;
+        longitude: number;
+    };
+    icon?: string;
+    featuredImage?: string;
+}
+
 export default function SlideShow({
     selectedId,
     onCardClick,
@@ -15,7 +28,7 @@ export default function SlideShow({
     selectedId: string | null;
     onCardClick: (id: string) => void;
     cls: string;
-    data: any[];  // Replace 'any' with proper type from your mock data
+    data: Entity[];
 }) {
     useEffect(() => {
         if (selectedId) {
