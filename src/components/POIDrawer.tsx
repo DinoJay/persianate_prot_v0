@@ -6,17 +6,20 @@ import { Badge } from "./ui/badge"
 
 export function POIDrawer({
     isOpen,
-    onClose,
+    // onClose,
     selectedId
 }: {
     isOpen: boolean
-    onClose: () => void
+    // onClose: () => void
     selectedId: string | null
 }) {
     const selectedPOI = mockData.entities.find(item => item.id === selectedId)
 
     return (
-        <ResponsiveDialog open={isOpen} onOpenChange={onClose} title={selectedPOI?.name}>
+        <ResponsiveDialog
+            open={isOpen}
+            title={selectedPOI?.name}
+        >
             {selectedPOI && (
                 <div className="p-6 overflow-y-auto">
                     <Image

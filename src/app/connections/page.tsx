@@ -2,7 +2,7 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import mockData from "@/mock-data.json";
 import * as d3 from 'd3';
-import SlideShow from '@/components/SlideShow'
+import SlideShow, { Entity } from '@/components/SlideShow'
 import type { SimulationNodeDatum } from 'd3';
 
 type Node = SimulationNodeDatum & {
@@ -32,12 +32,12 @@ export default function TypePage() {
     // Memoize static data structures
     const { nodes, links } = useMemo(() => {
         const graphNodes = mockData.entities
-            .filter(entity => entity.name)  // Filter out entities without names
+            .filter((entity): entity is typeof entity & { name: string } => Boolean(entity.name))
             .map(entity => ({
                 id: entity.id,
                 name: entity.name,
                 group: entity.type
-            }));
+            } as Node));
 
         const graphLinks = mockData.entities.reduce((acc, entity) => {
             if (entity.links) {
@@ -208,7 +208,19 @@ export default function TypePage() {
                     selectedId={selectedId}
                     onCardClick={handleSelect}
                     cls="flex-1"
-                    data={mockData.entities}
+                    data={mockData.entities
+                        .filter((e): e is typeof e & { name: string; description: string; type: string } =>
+                            Boolean(e.name && e.description && e.type)
+                        )
+                        .map((e): Entity => ({
+                            id: e.id,
+                            name: e.name,
+                            description: e.description,
+                            type: e.type,
+                            geoLocation: e.geoLocation || undefined,
+                            icon: e.icon || undefined,
+                            featuredImage: e.featuredImage || undefined
+                        }))}
                 />
             </div>
         </div>

@@ -22,7 +22,6 @@ export default function Home() {
     <div className="flex-1 flex flex-col relative">
       <POIDrawer
         isOpen={isDrawerOpen}
-        onClose={() => setIsDrawerOpen(false)}
         selectedId={selectedId}
       />
       <div className="mt-auto w-full z-10 pointer-events-none ">
