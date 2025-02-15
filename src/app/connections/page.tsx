@@ -214,7 +214,7 @@ export default function TypePage() {
     const transform = calculateTransform();
 
     return (
-        <div className="flex-1 flex flex-col relative">
+        <>
             <div ref={containerRef} className="flex-1 flex flex-col relative">
                 <svg width="100%" className="flex-1" viewBox={`0 0 ${containerSize.width} ${containerSize.height}`}>
                     <g style={{
@@ -278,6 +278,6 @@ export default function TypePage() {
                     />
                 </div>
             </div>
-        </div>
+        </>
     );
 } 
