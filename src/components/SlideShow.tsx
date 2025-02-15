@@ -45,7 +45,7 @@ export default function SlideShow({
 
     return (
         <div className={cn("flex space-x-4 px-4 w-full overflow-x-auto overflow-y-hidden relative items-end", cls)}>
-            {data.filter(d => d.geoLocation).map((entity) => (
+            {data.map((entity) => (
                 <Card
                     key={entity.id}
                     className={cn(

@@ -33,7 +33,7 @@ export default function TypePage() {
 
     // Memoize static data structures
     const { nodes, links } = useMemo(() => {
-        const validEntities = mockData.entities.filter(e => e.name && e.type);
+        const validEntities = mockData.entities
         const graphNodes = validEntities.map(entity => ({
             id: entity.id,
             name: entity.name,
@@ -148,7 +148,6 @@ export default function TypePage() {
     // Update the selection effect
     useEffect(() => {
         if (selectedId) {
-            console.log('links', links)
             setNeighbors(findConnectedNodes(selectedId, links));
         } else {
             setNeighbors(new Set());
@@ -270,7 +269,7 @@ export default function TypePage() {
                         })}
                     </g>
                 </svg>
-                <div className="absolute bottom-0 left-0 w-full overflow-auto">
+                <div className="absolute bottom-0 left-0 w-full overflow-auto pointer-events-none">
                     <SlideShow
                         selectedId={selectedId}
                         onCardClick={handleSelect}

@@ -31,7 +31,7 @@ export default function Home() {
           cls=""
           data={mockData.entities
             .filter((e): e is typeof e & { name: string; description: string; type: string } =>
-              Boolean(e.name && e.description && e.type)
+              Boolean(e.name && e.description && e.type && e.geoLocation)
             )
             .map((e): Entity => ({
               id: e.id,
