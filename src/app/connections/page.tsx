@@ -2,27 +2,28 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import mockData from "@/mock-data.json";
 import * as d3 from 'd3';
-import SlideShow, { Entity } from '@/components/SlideShow'
-import type { SimulationNodeDatum } from 'd3';
+import SlideShow from '@/components/SlideShow'
 
-type Node = SimulationNodeDatum & {
+type Node = {
     id: string;
     name: string;
     group: string;
+    x?: number;
+    y?: number;
 }
 
-type Link = d3.SimulationLinkDatum<Node> & {
+type Link = {
     source: Node;
     target: Node;
     value: number;
 }
 
 export default function TypePage() {
-    const [viewBox, setViewBox] = useState("0 0 100 100");
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const simulationRef = useRef<d3.Simulation<Node, Link> | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
-    const slideShowRef = useRef<HTMLDivElement>(null);
+    const [currentNodes, setCurrentNodes] = useState<array>([])
+    const [containerSize, setContainerSize] = useState({ width: 1000, height: 1000 });
     // const nodesRef = useRef(mockData.entities.map(entity => ({
     //     id: entity.id,
     //     name: entity.name,
@@ -31,126 +32,91 @@ export default function TypePage() {
 
     // Memoize static data structures
     const { nodes, links } = useMemo(() => {
-        const graphNodes = mockData.entities
-            .filter((entity): entity is typeof entity & { name: string } => Boolean(entity.name))
-            .map(entity => ({
-                id: entity.id,
-                name: entity.name,
-                group: entity.type
-            } as Node));
+        const validEntities = mockData.entities.filter(e => e.name && e.type);
+        const graphNodes = validEntities.map(entity => ({
+            id: entity.id,
+            name: entity.name,
+            group: entity.type
+        }));
 
-        const graphLinks = mockData.entities.reduce((acc, entity) => {
+        const graphLinks = validEntities.reduce((acc: Link[], entity) => {
             if (entity.links) {
                 const validLinks = entity.links.filter(targetId =>
-                    mockData.entities.some(e => e.id === targetId)
+                    graphNodes.some(n => n.id === targetId)
                 );
-                const newLinks = validLinks.map(targetId => {
-                    const targetEntity = mockData.entities.find(e => e.id === targetId);
-                    if (!targetEntity?.name || !targetEntity?.type) return null;
-
-                    return {
-                        source: {
-                            id: entity.id,
-                            name: entity.name,
-                            group: entity.type
-                        },
-                        target: {
-                            id: targetId,
-                            name: targetEntity.name,
-                            group: targetEntity.type
-                        },
-                        value: 1
-                    } as Link;
-                }).filter((link): link is Link => link !== null);
+                const newLinks = validLinks.map(targetId => ({
+                    source: graphNodes.find(n => n.id === entity.id)!,
+                    target: graphNodes.find(n => n.id === targetId)!,
+                    value: 1
+                }));
                 return [...acc, ...newLinks];
             }
             return acc;
-        }, [] as Link[]);
+        }, []);
 
         return { nodes: graphNodes, links: graphLinks };
     }, []);
 
-    // Calculate viewBox based on nodes and selection
-    const calculateViewBox = useCallback(() => {
-        const currentNodes = simulationRef.current?.nodes() || [];
-        if (!selectedId) {
-            const padding = 40;
-            const baseCardHeight = 100;
-            const bottomPadding = baseCardHeight + padding;
+    // Update container size on mount and resize
+    useEffect(() => {
+        const updateSize = () => {
+            if (containerRef.current) {
+                setContainerSize({
+                    width: containerRef.current.clientWidth,
+                    height: containerRef.current.clientHeight
+                });
+            }
+        };
 
-            const xs = currentNodes.map(n => n.x!);
-            const ys = currentNodes.map(n => n.y!);
-            const minX = Math.min(...xs) - padding;
-            const maxX = Math.max(...xs) + padding;
-            const minY = Math.min(...ys) - padding;
-            const maxY = Math.max(...ys) + padding;
-            const width = maxX - minX;
-            const height = maxY - minY + bottomPadding;
-
-            return `${minX} ${minY} ${width} ${height}`;
-        }
-
-        // Calculate selection viewBox
-        const connectedIds = new Set([selectedId]);
-        links.forEach(link => {
-            if (link.source.id === selectedId) connectedIds.add(link.target.id);
-            if (link.target.id === selectedId) connectedIds.add(link.source.id);
-        });
-
-        const relevantNodes = currentNodes.filter(node => connectedIds.has(node.id));
-        const padding = 40;
-        const baseCardHeight = 100;
-        const bottomPadding = baseCardHeight + padding;
-
-        const xs = relevantNodes.map(n => n.x!);
-        const ys = relevantNodes.map(n => n.y!);
-        const minX = Math.min(...xs) - padding;
-        const maxX = Math.max(...xs) + padding;
-        const minY = Math.min(...ys) - padding;
-        const maxY = Math.max(...ys) + padding;
-        const width = maxX - minX;
-        const height = maxY - minY + bottomPadding;
-
-        return `${minX} ${minY} ${width} ${height}`;
-    }, [selectedId, links]);
+        updateSize();
+        window.addEventListener('resize', updateSize);
+        return () => window.removeEventListener('resize', updateSize);
+    }, []);
 
     useEffect(() => {
+        // Initialize nodes in a circular layout for better starting positions
+        nodes.forEach((node, i) => {
+            node.x = containerSize.width / 2
+            node.y = containerSize.height / 2
+        });
+
         simulationRef.current = d3.forceSimulation<Node>(nodes)
             .force("link", d3.forceLink<Node, Link>(links)
                 .id(d => d.id)
-                .distance(80))
+                .distance(30)
+                .strength(1))  // Add back link force with moderate strength
             .force("charge", d3.forceManyBody()
-                .strength(-300)
-                .distanceMin(50)
+                .strength(-100)  // Reduced repulsion
+                .distanceMin(20)
                 .distanceMax(200))
             .force("x", d3.forceX()
-                .strength(0.09)
-                .x(0))
+                .strength(0.15)  // Very gentle x centering
+                .x(containerSize.width / 2))
             .force("y", d3.forceY()
-                .strength(0.05)
-                .y((_, i) => (i - nodes.length / 2) * 0.8))
-            // .force("collision", d3.forceCollide()
-            //     .radius(25)
-            //     .strength(1))
+                .strength(0.05)  // Very gentle y centering
+                .y(containerSize.height / 2))
+            .force("collision", d3.forceCollide()
+                .radius(20)
+                .strength(0.7))
             .alphaDecay(0.01)
             .on("tick", () => {
-                setViewBox(calculateViewBox());
+                const padding = 50;
+                // console.log('check')
+                // nodes.forEach(node => {
+                //     node.x = Math.max(padding, Math.min(containerSize.width - padding, node.x || containerSize.width / 2));
+                //     node.y = Math.max(padding, Math.min(containerSize.height - padding, node.y || containerSize.height / 2));
+                // });
+                setCurrentNodes([...simulationRef.current!.nodes()]);
             });
 
-        return () => {
-            simulationRef.current?.stop();
-            return undefined;
-        };
-    }, [nodes, links, calculateViewBox]);
+        return () => simulationRef.current?.stop();
+    }, [nodes, links, containerSize]);
 
     // Get current node positions for rendering
-    const currentNodes = simulationRef.current?.nodes() || nodes;
 
-    // Update viewBox when selection changes
-    useEffect(() => {
-        console.log('viewbox', calculateViewBox())
-        setViewBox(calculateViewBox());
-    }, [selectedId, calculateViewBox]);
+    // Add separate effect for viewBox updates
+    // useEffect(() => {
+    // }, [selectedId, calculateViewBox]);
 
     const handleSelect = useCallback((id: string) => {
         console.log('id', id)
@@ -158,69 +124,99 @@ export default function TypePage() {
 
     }, []);
 
+    const calculateTransform = useCallback(() => {
+        if (!currentNodes.length) {
+            return { scale: 1, translateX: 0, translateY: 0 };
+        }
+
+        const padding = 10;
+        const slideShowHeight = 100; // Height of the slideshow
+        const bottomPadding = padding + slideShowHeight;
+
+        // Get bounds
+        const xs = currentNodes.map(n => n.x || 0);
+        const ys = currentNodes.map(n => n.y || 0);
+        const minX = Math.min(...xs);
+        const maxX = Math.max(...xs);
+        const minY = Math.min(...ys);
+        const maxY = Math.max(...ys);
+
+        // Calculate dimensions with padding
+        const width = maxX - minX + padding * 2;
+        const height = maxY - minY + padding + bottomPadding; // More padding at bottom
+
+        // Calculate scale to fit
+        const scale = Math.min(
+            containerSize.width / width,
+            (containerSize.height - slideShowHeight) / height // Subtract slideshow height
+        );
+
+        // Calculate translation to center, but shift up to account for slideshow
+        const translateX = (containerSize.width - (maxX + minX) * scale) / 2;
+        const translateY = (containerSize.height - slideShowHeight - (maxY + minY) * scale) / 2;
+
+        return { scale, translateX, translateY };
+    }, [currentNodes, containerSize]);
+
+    const transform = calculateTransform();
+
     return (
         <div className="flex-1 flex flex-col relative">
-            <div id="outer-cont" ref={containerRef} className="flex-1 flex flex-col relative">
-                <svg
-                    width="100%"
-                    height="100%"
-                    viewBox={viewBox}
-                    style={{ transition: 'all 0.5s ease-in-out' }}
-                >
-                    <g>
-                        {links.map((link) => {
-                            const source = currentNodes.find(n => n.id === link.source.id);
-                            const target = currentNodes.find(n => n.id === link.target.id);
-                            if (!source?.x || !target?.x) return null;
-                            return (
-                                <line
-                                    key={`${link.source.id}-${link.target.id}`}
-                                    x1={source.x}
-                                    y1={source.y}
-                                    x2={target.x}
-                                    y2={target.y}
-                                    stroke="#999"
-                                    strokeWidth={2}
-                                    strokeOpacity={0.6}
-                                />
-                            );
-                        })}
-                        {currentNodes.map((node) => (
+            <div ref={containerRef} className="flex-1">
+                <svg width="100%" height="100%" viewBox={`0 0 ${containerSize.width} ${containerSize.height}`}>
+                    {links.map((link) => {
+                        const source = currentNodes.find(n => n.id === link.source.id);
+                        const target = currentNodes.find(n => n.id === link.target.id);
+                        if (!source?.x || !target?.x) return null;
+
+                        const x1 = source.x * transform.scale + transform.translateX;
+                        const y1 = source.y * transform.scale + transform.translateY;
+                        const x2 = target.x * transform.scale + transform.translateX;
+                        const y2 = target.y * transform.scale + transform.translateY;
+
+                        return (
+                            <line
+                                key={`${link.source.id}-${link.target.id}`}
+                                x1={x1}
+                                y1={y1}
+                                x2={x2}
+                                y2={y2}
+                                stroke="#999"
+                                strokeWidth={2}
+                                strokeOpacity={0.6}
+                                style={{
+                                    transition: 'x1 0.5s ease-in-out, y1 0.5s ease-in-out, x2 0.5s ease-in-out, y2 0.5s ease-in-out'
+                                }}
+                            />
+                        );
+                    })}
+                    {currentNodes.map((node) => {
+                        if (!node.x || !node.y) return null;
+
+                        const cx = node.x * transform.scale + transform.translateX;
+                        const cy = node.y * transform.scale + transform.translateY;
+
+                        return (
                             <circle
                                 key={node.id}
-                                cx={node.x}
-                                cy={node.y}
+                                cx={cx}
+                                cy={cy}
                                 r={15}
                                 fill={node.group === 'POI' ? 'blue' : 'red'}
                                 stroke="white"
                                 strokeWidth={1.5}
                                 onClick={() => handleSelect(node.id)}
-                                style={{
-                                    transition: 'fill 0.2s ease-in-out',
-                                }}
                             />
-                        ))}
-                    </g>
+                        );
+                    })}
                 </svg>
             </div>
-            <div ref={slideShowRef} className="fixed bottom-0 left-0 w-full overflow-auto">
+            <div className="fixed bottom-0 left-0 w-full overflow-auto">
                 <SlideShow
                     selectedId={selectedId}
                     onCardClick={handleSelect}
                     cls="flex-1"
-                    data={mockData.entities
-                        .filter((e): e is typeof e & { name: string; description: string; type: string } =>
-                            Boolean(e.name && e.description && e.type)
-                        )
-                        .map((e): Entity => ({
-                            id: e.id,
-                            name: e.name,
-                            description: e.description,
-                            type: e.type,
-                            geoLocation: e.geoLocation || undefined,
-                            icon: e.icon || undefined,
-                            featuredImage: e.featuredImage || undefined
-                        }))}
+                    data={mockData.entities}
                 />
             </div>
         </div>
