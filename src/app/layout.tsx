@@ -28,7 +28,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased `}
       >
-        <div className="h-lvh w-lvw flex flex-col">
+        <div className="h-svh w-svw flex flex-col">
           <div className="m-auto w-full sm:py-3 max-w-prose flex-1 flex flex-col">
             <Navbar></Navbar>
             {children}
