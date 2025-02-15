@@ -119,17 +119,37 @@ export default function TypePage() {
         return () => void simulationRef.current?.stop();
     }, [nodes, links, containerSize]);
 
-    // Update neighbors when selection changes
+    const findConnectedNodes = (startId: string, links: Link[]): Set<string> => {
+        const connected = new Set<string>();
+        const queue = [startId];
+
+        while (queue.length > 0) {
+            const currentId = queue.shift()!;
+            connected.add(currentId);
+
+            // Find all nodes connected to current node
+            links.forEach(link => {
+                const source = (link.source as Node).id;
+                const target = (link.target as Node).id;
+
+                // Check both directions
+                if (source === currentId && !connected.has(target)) {
+                    queue.push(target);
+                }
+                if (target === currentId && !connected.has(source)) {
+                    queue.push(source);
+                }
+            });
+        }
+
+        return connected;
+    };
+
+    // Update the selection effect
     useEffect(() => {
         if (selectedId) {
-            const newNeighbors = new Set<string>([selectedId]);
-            links.forEach(link => {
-                const sourceId = (link.source as Node).id;
-                const targetId = (link.target as Node).id;
-                if (sourceId === selectedId) newNeighbors.add(targetId);
-                if (targetId === selectedId) newNeighbors.add(sourceId);
-            });
-            setNeighbors(newNeighbors);
+            console.log('links', links)
+            setNeighbors(findConnectedNodes(selectedId, links));
         } else {
             setNeighbors(new Set());
         }
@@ -255,7 +275,7 @@ export default function TypePage() {
                         selectedId={selectedId}
                         onCardClick={handleSelect}
                         cls="flex-1"
-                        data={mockData.entities.filter(e => e.name) as Entity[]}
+                        data={mockData.entities as Entity[]}
                     />
                 </div>
             </div>
