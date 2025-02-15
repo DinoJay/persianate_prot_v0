@@ -2,27 +2,28 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import mockData from "@/mock-data.json";
 import * as d3 from 'd3';
-import SlideShow from '@/components/SlideShow'
+import SlideShow, { Entity } from '@/components/SlideShow';
 
 type Node = {
     id: string;
-    name: string;
+    name: string | undefined;  // Allow undefined since some nodes might not have names
     group: string;
-    x?: number;
-    y?: number;
-}
+    x: number;
+    y: number;
+} & d3.SimulationNodeDatum;
 
-type Link = {
-    source: Node;
-    target: Node;
+type Link = d3.SimulationLinkDatum<Node> & {
+    source: Node;  // Override to ensure source is always Node
+    target: Node;  // Override to ensure target is always Node
     value: number;
 }
 
 export default function TypePage() {
     const [selectedId, setSelectedId] = useState<string | null>(null);
+    const [neighbors, setNeighbors] = useState<Set<string>>(new Set());
     const simulationRef = useRef<d3.Simulation<Node, Link> | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
-    const [currentNodes, setCurrentNodes] = useState<array>([])
+    const [currentNodes, setCurrentNodes] = useState<Node[]>([]);
     const [containerSize, setContainerSize] = useState({ width: 1000, height: 1000 });
     // const nodesRef = useRef(mockData.entities.map(entity => ({
     //     id: entity.id,
@@ -36,10 +37,12 @@ export default function TypePage() {
         const graphNodes = validEntities.map(entity => ({
             id: entity.id,
             name: entity.name,
-            group: entity.type
-        }));
+            group: entity.type,
+            x: 0,  // Initialize with default coordinates
+            y: 0
+        } as Node));
 
-        const graphLinks = validEntities.reduce((acc: Link[], entity) => {
+        const graphLinks = validEntities.reduce<Link[]>((acc, entity) => {
             if (entity.links) {
                 const validLinks = entity.links.filter(targetId =>
                     graphNodes.some(n => n.id === targetId)
@@ -48,7 +51,7 @@ export default function TypePage() {
                     source: graphNodes.find(n => n.id === entity.id)!,
                     target: graphNodes.find(n => n.id === targetId)!,
                     value: 1
-                }));
+                } as Link));
                 return [...acc, ...newLinks];
             }
             return acc;
@@ -74,43 +77,63 @@ export default function TypePage() {
     }, []);
 
     useEffect(() => {
-        // Initialize nodes in a circular layout for better starting positions
-        nodes.forEach((node, i) => {
-            node.x = containerSize.width / 2
-            node.y = containerSize.height / 2
+        // Initialize nodes with valid coordinates
+        nodes.forEach((node) => {
+            node.x = containerSize.width / 2;
+            node.y = containerSize.height / 2;
         });
+        setCurrentNodes(nodes);
+
+        // Calculate dimensions based on container size
+        const baseDistance = Math.min(containerSize.width, containerSize.height) * 0.1; // 10% of smallest dimension
+        const baseCharge = -Math.min(containerSize.width, containerSize.height) * 0.3; // 30% of smallest dimension
+        const baseRadius = Math.min(containerSize.width, containerSize.height) * 0.015; // 1.5% of smallest dimension
 
         simulationRef.current = d3.forceSimulation<Node>(nodes)
             .force("link", d3.forceLink<Node, Link>(links)
                 .id(d => d.id)
-                .distance(30)
-                .strength(1))  // Add back link force with moderate strength
+                .distance(baseDistance)     // Scale link distance with container
+                .strength(0.5))            // Reduced strength for more flexibility
             .force("charge", d3.forceManyBody()
-                .strength(-100)  // Reduced repulsion
-                .distanceMin(20)
-                .distanceMax(200))
+                .strength(baseCharge)      // Scale charge with container
+                .distanceMin(baseDistance * 0.5)
+                .distanceMax(baseDistance * 5))
             .force("x", d3.forceX()
-                .strength(0.15)  // Very gentle x centering
+                .strength(0.1)
                 .x(containerSize.width / 2))
             .force("y", d3.forceY()
-                .strength(0.05)  // Very gentle y centering
+                .strength(0.1)
                 .y(containerSize.height / 2))
             .force("collision", d3.forceCollide()
-                .radius(20)
-                .strength(0.7))
+                .radius(baseRadius)        // Scale collision radius with container
+                .strength(0.8))
             .alphaDecay(0.01)
+            .alphaMin(0.6)
             .on("tick", () => {
-                const padding = 50;
-                // console.log('check')
-                // nodes.forEach(node => {
-                //     node.x = Math.max(padding, Math.min(containerSize.width - padding, node.x || containerSize.width / 2));
-                //     node.y = Math.max(padding, Math.min(containerSize.height - padding, node.y || containerSize.height / 2));
-                // });
-                setCurrentNodes([...simulationRef.current!.nodes()]);
+                if (simulationRef.current) {
+                    const nodes = simulationRef.current.nodes();
+                    setCurrentNodes([...nodes]);
+                }
             });
 
-        return () => simulationRef.current?.stop();
+        return () => void simulationRef.current?.stop();
     }, [nodes, links, containerSize]);
+
+    // Update neighbors when selection changes
+    useEffect(() => {
+        if (selectedId) {
+            const newNeighbors = new Set<string>([selectedId]);
+            links.forEach(link => {
+                const sourceId = (link.source as Node).id;
+                const targetId = (link.target as Node).id;
+                if (sourceId === selectedId) newNeighbors.add(targetId);
+                if (targetId === selectedId) newNeighbors.add(sourceId);
+            });
+            setNeighbors(newNeighbors);
+        } else {
+            setNeighbors(new Set());
+        }
+    }, [selectedId, links]);
 
     // Get current node positions for rendering
 
@@ -129,95 +152,112 @@ export default function TypePage() {
             return { scale: 1, translateX: 0, translateY: 0 };
         }
 
-        const padding = 10;
-        const slideShowHeight = 100; // Height of the slideshow
+        const padding = selectedId ? 30 : 10;
+        const slideShowHeight = selectedId ? 250 : 100;
         const bottomPadding = padding + slideShowHeight;
 
-        // Get bounds
-        const xs = currentNodes.map(n => n.x || 0);
-        const ys = currentNodes.map(n => n.y || 0);
+        // Get nodes to focus on (selected node and its neighbors)
+        let nodesToShow = currentNodes;
+        if (selectedId) {
+            nodesToShow = currentNodes.filter(node => neighbors.has(node.id));
+        }
+
+        // Calculate bounds for visible nodes
+        const xs = nodesToShow.map(n => n.x || 0);
+        const ys = nodesToShow.map(n => n.y || 0);
         const minX = Math.min(...xs);
         const maxX = Math.max(...xs);
         const minY = Math.min(...ys);
         const maxY = Math.max(...ys);
 
         // Calculate dimensions with padding
-        const width = maxX - minX + padding * 2;
-        const height = maxY - minY + padding + bottomPadding; // More padding at bottom
+        const width = Math.max(maxX - minX + padding * 4, 100); // Minimum width to prevent extreme zoom
+        const height = Math.max(maxY - minY + padding * 4 + bottomPadding, 100); // Minimum height
 
         // Calculate scale to fit
-        const scale = Math.min(
+        let scale = Math.min(
             containerSize.width / width,
-            (containerSize.height - slideShowHeight) / height // Subtract slideshow height
+            (containerSize.height - slideShowHeight) / height
         );
 
-        // Calculate translation to center, but shift up to account for slideshow
+        // Apply extra zoom for selected nodes
+        if (selectedId) {
+            scale *= 1.5;
+        }
+
+        // Calculate translation to center the visible nodes
         const translateX = (containerSize.width - (maxX + minX) * scale) / 2;
         const translateY = (containerSize.height - slideShowHeight - (maxY + minY) * scale) / 2;
 
         return { scale, translateX, translateY };
-    }, [currentNodes, containerSize]);
+    }, [currentNodes, containerSize, selectedId, neighbors]);
 
     const transform = calculateTransform();
 
     return (
         <div className="flex-1 flex flex-col relative">
-            <div ref={containerRef} className="flex-1">
+            <div ref={containerRef} className="flex-1 relative">
                 <svg width="100%" height="100%" viewBox={`0 0 ${containerSize.width} ${containerSize.height}`}>
-                    {links.map((link) => {
-                        const source = currentNodes.find(n => n.id === link.source.id);
-                        const target = currentNodes.find(n => n.id === link.target.id);
-                        if (!source?.x || !target?.x) return null;
+                    <g style={{
+                        transition: 'transform 0.5s ease-out',
+                        transform: `translate(${transform.translateX}px, ${transform.translateY}px) scale(${transform.scale})`
+                    }}>
+                        {links.map((link) => {
+                            const source = currentNodes.find(n => n.id === link.source.id);
+                            const target = currentNodes.find(n => n.id === link.target.id);
+                            if (!source?.x || !target?.x) return null;
 
-                        const x1 = source.x * transform.scale + transform.translateX;
-                        const y1 = source.y * transform.scale + transform.translateY;
-                        const x2 = target.x * transform.scale + transform.translateX;
-                        const y2 = target.y * transform.scale + transform.translateY;
+                            return (
+                                <line
+                                    key={`${link.source.id}-${link.target.id}`}
+                                    x1={source.x}
+                                    y1={source.y}
+                                    x2={target.x}
+                                    y2={target.y}
+                                    stroke="#999"
+                                    strokeWidth={2 / transform.scale}
+                                    strokeOpacity={selectedId && !neighbors.has(link.source.id) && !neighbors.has(link.target.id) ? 0.2 : 0.6}
+                                    style={{
+                                        transition: 'stroke-opacity 0.5s ease-out'
+                                    }}
+                                />
+                            );
+                        })}
+                        {currentNodes.map((node) => {
+                            if (typeof node.x !== 'number' || typeof node.y !== 'number') return null;
 
-                        return (
-                            <line
-                                key={`${link.source.id}-${link.target.id}`}
-                                x1={x1}
-                                y1={y1}
-                                x2={x2}
-                                y2={y2}
-                                stroke="#999"
-                                strokeWidth={2}
-                                strokeOpacity={0.6}
-                                style={{
-                                    transition: 'x1 0.5s ease-in-out, y1 0.5s ease-in-out, x2 0.5s ease-in-out, y2 0.5s ease-in-out'
-                                }}
-                            />
-                        );
-                    })}
-                    {currentNodes.map((node) => {
-                        if (!node.x || !node.y) return null;
+                            const isSelected = selectedId === node.id;
+                            const isNeighbor = selectedId && neighbors.has(node.id);
+                            const opacity = selectedId ? (isSelected || isNeighbor ? 1 : 0.3) : 1;
 
-                        const cx = node.x * transform.scale + transform.translateX;
-                        const cy = node.y * transform.scale + transform.translateY;
-
-                        return (
-                            <circle
-                                key={node.id}
-                                cx={cx}
-                                cy={cy}
-                                r={15}
-                                fill={node.group === 'POI' ? 'blue' : 'red'}
-                                stroke="white"
-                                strokeWidth={1.5}
-                                onClick={() => handleSelect(node.id)}
-                            />
-                        );
-                    })}
+                            return (
+                                <circle
+                                    key={node.id}
+                                    cx={node.x}
+                                    cy={node.y}
+                                    r={(isSelected ? 20 : 15) / transform.scale}
+                                    fill={node.group === 'POI' ? 'blue' : 'red'}
+                                    stroke="white"
+                                    strokeWidth={(isSelected ? 2.5 : 1.5) / transform.scale}
+                                    opacity={opacity}
+                                    onClick={() => handleSelect(node.id)}
+                                    style={{
+                                        transition: 'r 0.5s ease-out, stroke-width 0.5s ease-out, opacity 0.5s ease-out',
+                                        cursor: 'pointer'
+                                    }}
+                                />
+                            );
+                        })}
+                    </g>
                 </svg>
-            </div>
-            <div className="fixed bottom-0 left-0 w-full overflow-auto">
-                <SlideShow
-                    selectedId={selectedId}
-                    onCardClick={handleSelect}
-                    cls="flex-1"
-                    data={mockData.entities}
-                />
+                <div className="absolute bottom-0 left-0 w-full overflow-auto">
+                    <SlideShow
+                        selectedId={selectedId}
+                        onCardClick={handleSelect}
+                        cls="flex-1"
+                        data={mockData.entities.filter(e => e.name) as Entity[]}
+                    />
+                </div>
             </div>
         </div>
     );
