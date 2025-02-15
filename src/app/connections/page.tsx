@@ -215,8 +215,8 @@ export default function TypePage() {
 
     return (
         <div className="flex-1 flex flex-col relative">
-            <div ref={containerRef} className="flex-1 relative">
-                <svg width="100%" height="100%" viewBox={`0 0 ${containerSize.width} ${containerSize.height}`}>
+            <div ref={containerRef} className="flex-1 flex flex-col relative">
+                <svg width="100%" className="flex-1" viewBox={`0 0 ${containerSize.width} ${containerSize.height}`}>
                     <g style={{
                         transition: 'transform 0.5s ease-out',
                         transform: `translate(${transform.translateX}px, ${transform.translateY}px) scale(${transform.scale})`
