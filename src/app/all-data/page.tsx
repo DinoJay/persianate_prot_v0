@@ -25,7 +25,6 @@ export default function AllDataPage() {
 
     return (
         <div className="flex flex-col items-center p-4">
-            <h1 className="text-2xl font-bold mb-4">All Data</h1>
             <div className="mb-4 flex flex-wrap gap-2">
                 {types.map((type) => (
                     <Badge
@@ -40,14 +39,14 @@ export default function AllDataPage() {
             </div>
             <div className="flex overflow-x-auto space-x-4 w-full">
                 {filteredEntities.map((entity) => (
-                    <Card key={entity.id} className="flex-none w-80 " style={{ height: "480px" }}>
+                    <Card key={entity.id} className="flex-none w-80 " >
                         <CardContent className="flex flex-col h-full">
                             <Image
                                 src={entity.featuredImage || "/poi_placeholder.svg"}
                                 alt={entity.name || ""}
                                 width={300}
                                 height={150}
-                                className="h-[150px] w-full object-cover rounded-t-lg"
+                                className="h-[250px] w-full object-cover rounded-t-lg"
                             />
                             <CardTitle className="text-lg font-semibold">{entity.name}</CardTitle>
                             <p className="text-sm text-gray-600">{entity.description}</p>

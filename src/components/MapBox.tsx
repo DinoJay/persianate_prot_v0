@@ -168,7 +168,22 @@ function MapBox({ onMarkerClick, selectedId }: { onMarkerClick: (id: string) => 
                                     top: `${selectedPoint.y + y}px`,
                                     transform: 'translate(-50%, -50%)'
                                 }}
-                                onClick={() => onMarkerClick(entity.id)}
+                                onClick={() => {
+
+                                    if (selectedId && mapRef.current) {
+                                        const selectedLocation = entity?.geoLocation;
+                                        if (selectedLocation?.longitude && selectedLocation?.latitude) {
+                                            const offset: [number, number] = [0, -window.innerHeight / 5];
+                                            mapRef.current.flyTo({
+                                                center: [selectedLocation.longitude, selectedLocation.latitude],
+                                                offset,
+                                                zoom: 12,
+                                                duration: 2000
+                                            });
+                                        }
+                                    }
+
+                                }}
                             >
                                 <CardContent className="p-4">
                                     <CardTitle className="text-sm truncate">
