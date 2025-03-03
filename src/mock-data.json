@@ -8,7 +8,7 @@
         "type": "POI",
         "icon": "https://example.com/persepolis-icon.png",
         "featuredImage": "https://example.com/persepolis.jpg",
-        "links": ["film-1", "book-1"],
+        "links": ["film-1", "book-1", "event-1", "restaurant-1", "poi-2"],
         "geoLocation": {
           "longitude": 52.8914,
           "latitude": 29.9355
@@ -24,6 +24,41 @@
         "period": "6th century BCE"
       },
       {
+        "id": "restaurant-1",
+        "name": "Haft Khan",
+        "description": "Traditional Persian restaurant near Persepolis",
+        "creationDate": "2023-10-15T12:00:00Z",
+        "type": "Restaurant",
+        "icon": "https://example.com/haft-khan-icon.png",
+        "featuredImage": "https://example.com/haft-khan.jpg",
+        "links": ["poi-1", "event-1"],
+        "geoLocation": {
+          "latitude": 29.9335,
+          "longitude": 52.8915
+        },
+        "handicraft": "Persian cuisine",
+        "food": "Abgoosht",
+        "vibe": "Traditional and flavorful"
+      },
+      {
+        "id": "event-1",
+        "name": "Nowruz Celebration",
+        "description": "Persian New Year festivities at Persepolis",
+        "creationDate": "2023-10-15T12:00:00Z",
+        "type": "Event",
+        "icon": "https://example.com/nowruz-icon.png",
+        "featuredImage": "https://example.com/nowruz.jpg",
+        "links": ["poi-1", "restaurant-1"],
+        "geoLocation": {
+          "latitude": 29.9334,
+          "longitude": 52.8913
+        },
+        "eventType": "Cultural Festival",
+        "startDate": "2024-03-20",
+        "endDate": "2024-03-25",
+        "recurring": "Annually"
+      },
+      {
         "id": "poi-2",
         "name": "Naqsh-e Jahan Square",
         "description": "A UNESCO World Heritage Site in Isfahan.",
@@ -31,7 +66,7 @@
         "type": "POI",
         "icon": "https://example.com/naqsh-e-jahan-icon.png",
         "featuredImage": "https://example.com/naqsh-e-jahan.jpg",
-        "links": ["event-1"],
+        "links": ["event-2", "restaurant-2", "poi-3"],
         "geoLocation": {
           "longitude": 51.6775,
           "latitude": 32.6577
@@ -45,6 +80,97 @@
         "architect": "person-2",
         "style": "Safavid",
         "period": "17th century"
+      },
+      {
+        "id": "restaurant-2",
+        "name": "Shahrzad Restaurant",
+        "description": "Historic restaurant serving traditional Isfahan cuisine",
+        "creationDate": "2023-10-15T12:00:00Z",
+        "type": "Restaurant",
+        "icon": "https://example.com/shahrzad-restaurant-icon.png",
+        "featuredImage": "https://example.com/shahrzad-restaurant.jpg",
+        "links": ["poi-2", "event-2"],
+        "geoLocation": {
+          "latitude": 32.6579,
+          "longitude": 51.6778
+        },
+        "handicraft": "Persian cuisine",
+        "food": "Beryani"
+      },
+      {
+        "id": "event-2",
+        "name": "Isfahan Cultural Night",
+        "description": "Evening of traditional music and arts",
+        "creationDate": "2023-10-15T12:00:00Z",
+        "type": "Event",
+        "icon": "https://example.com/isfahan-cultural-night-icon.png",
+        "featuredImage": "https://example.com/isfahan-cultural-night.jpg",
+        "links": ["poi-2", "restaurant-2"],
+        "geoLocation": {
+          "latitude": 32.6578,
+          "longitude": 51.6777
+        },
+        "eventType": "Cultural Festival",
+        "startDate": "2024-04-01",
+        "endDate": "2024-04-30",
+        "recurring": "Annually"
+      },
+      {
+        "id": "poi-3",
+        "name": "Golestan Palace",
+        "description": "UNESCO World Heritage site in Tehran",
+        "creationDate": "2023-10-15T12:00:00Z",
+        "type": "POI",
+        "icon": "https://example.com/golestan-palace-icon.png",
+        "featuredImage": "https://example.com/golestan-palace.jpg",
+        "links": ["restaurant-3", "event-3"],
+        "geoLocation": {
+          "latitude": 35.6844,
+          "longitude": 51.4246
+        },
+        "poiType": ["Historical Building", "Religious Site"],
+        "whereToStay": "Hotels in Tehran",
+        "howToGetThere": "Fly to Tehran International Airport.",
+        "handicraft": "Tilework",
+        "food": "Abgoosht",
+        "vibe": "Historical and majestic",
+        "architect": "person-3",
+        "style": "Safavid",
+        "period": "17th century"
+      },
+      {
+        "id": "restaurant-3",
+        "name": "Dizi Restaurant",
+        "description": "Famous for traditional Abgoosht in Tehran",
+        "creationDate": "2023-10-15T12:00:00Z",
+        "type": "Restaurant",
+        "icon": "https://example.com/dizi-restaurant-icon.png",
+        "featuredImage": "https://example.com/dizi-restaurant.jpg",
+        "links": ["poi-3", "event-3"],
+        "geoLocation": {
+          "latitude": 35.6846,
+          "longitude": 51.4248
+        },
+        "handicraft": "Persian cuisine",
+        "food": "Abgoosht"
+      },
+      {
+        "id": "event-3",
+        "name": "Tehran Art Exhibition",
+        "description": "Contemporary Iranian art showcase",
+        "creationDate": "2023-10-15T12:00:00Z",
+        "type": "Event",
+        "icon": "https://example.com/tehran-art-exhibition-icon.png",
+        "featuredImage": "https://example.com/tehran-art-exhibition.jpg",
+        "links": ["poi-3", "restaurant-3"],
+        "geoLocation": {
+          "latitude": 35.6845,
+          "longitude": 51.4247
+        },
+        "eventType": "Art Exhibition",
+        "startDate": "2024-05-01",
+        "endDate": "2024-05-31",
+        "recurring": "Annually"
       },
       {
         "id": "person-1",
@@ -109,83 +235,6 @@
         "links": ["poi-1"],
         "author": "person-3",
         "publishDate": "1937-01-01"
-      },
-      {
-        "id": "event-1",
-        "name": "Isfahan Music Festival",
-        "description": "An annual music festival held in Isfahan.",
-        "creationDate": "2023-10-15T12:00:00Z",
-        "type": "Event",
-        "icon": "https://example.com/isfahan-music-festival-icon.png",
-        "featuredImage": "https://example.com/isfahan-music-festival.jpg",
-        "links": ["poi-2"],
-        "eventType": "Festival",
-        "startDate": "2023-11-01",
-        "endDate": "2023-11-10",
-        "recurring": "Annually"
-      },
-      {
-        "id": "route-1",
-        "name": "Historical Tour of Shiraz",
-        "description": "A guided tour of historical sites in Shiraz.",
-        "creationDate": "2023-10-15T12:00:00Z",
-        "type": "Route",
-        "icon": "https://example.com/shiraz-tour-icon.png",
-        "featuredImage": "https://example.com/shiraz-tour.jpg",
-        "links": ["poi-1", "poi-5"],
-        "pois": ["poi-1", "poi-5"],
-        "duration": "2 days",
-        "difficulty": "Easy"
-      },
-      {
-        "id": "media-1",
-        "type": "Photo",
-        "url": "https://example.com/persepolis-aerial.jpg",
-        "description": "A stunning aerial photo of Persepolis.",
-        "thumbnail": "https://example.com/persepolis-thumbnail.jpg",
-        "icon": "https://example.com/persepolis-icon.png",
-        "source": "Internal Upload",
-        "linkedEntities": ["poi-1"]
-      },
-      {
-        "id": "media-2",
-        "type": "Video",
-        "url": "https://youtube.com/a-separation-trailer",
-        "description": "Official trailer for the film A Separation.",
-        "thumbnail": "https://example.com/a-separation-thumbnail.jpg",
-        "icon": "https://example.com/a-separation-icon.png",
-        "source": "YouTube",
-        "linkedEntities": ["film-1"]
-      },
-      {
-        "id": "media-3",
-        "type": "Article",
-        "url": "https://example.com/persepolis-history",
-        "description": "A detailed article about the history of Persepolis.",
-        "thumbnail": "https://example.com/persepolis-article-thumbnail.jpg",
-        "icon": "https://example.com/persepolis-icon.png",
-        "source": "Blog Post",
-        "linkedEntities": ["poi-1"]
-      },
-      {
-        "id": "media-4",
-        "type": "SocialMediaPost",
-        "url": "https://instagram.com/persepolis-photo",
-        "description": "A popular Instagram post about Persepolis.",
-        "thumbnail": "https://example.com/persepolis-instagram-thumbnail.jpg",
-        "icon": "https://example.com/persepolis-icon.png",
-        "source": "Instagram",
-        "linkedEntities": ["poi-1"]
-      },
-      {
-        "id": "media-5",
-        "type": "Music",
-        "url": "https://example.com/isfahan-music.mp3",
-        "description": "Traditional music from Isfahan.",
-        "thumbnail": "https://example.com/isfahan-music-thumbnail.jpg",
-        "icon": "https://example.com/isfahan-music-icon.png",
-        "source": "Internal Upload",
-        "linkedEntities": ["event-1"]
       },
       {
         "id": "person-3",
@@ -404,100 +453,67 @@
         "period": "14th century"
       },
       {
-        "id": "route-2",
-        "name": "Bakhtiari Nomadic Migration Route",
-        "description": "The traditional migration route of the Bakhtiari nomadic tribes.",
+        "id": "route-1",
+        "name": "Historical Tour of Shiraz",
+        "description": "A guided tour of historical sites in Shiraz.",
         "creationDate": "2023-10-15T12:00:00Z",
         "type": "Route",
-        "icon": "https://example.com/bakhtiari-route-icon.png",
-        "featuredImage": "https://example.com/bakhtiari-route.jpg",
-        "links": ["event-2"],
-        "pois": ["poi-11", "poi-12", "poi-13"],
-        "duration": "2 weeks",
-        "difficulty": "Moderate"
+        "icon": "https://example.com/shiraz-tour-icon.png",
+        "featuredImage": "https://example.com/shiraz-tour.jpg",
+        "links": ["poi-1", "poi-5"],
+        "pois": ["poi-1", "poi-5"],
+        "duration": "2 days",
+        "difficulty": "Easy"
       },
       {
-        "id": "poi-11",
-        "name": "Choghakhor Lake",
-        "description": "A scenic lake along the Bakhtiari migration route.",
-        "creationDate": "2023-10-15T12:00:00Z",
-        "type": "POI",
-        "icon": "https://example.com/choghakhor-lake-icon.png",
-        "featuredImage": "https://example.com/choghakhor-lake.jpg",
-        "links": ["route-2"],
-        "geoLocation": {
-          "longitude": 50.5000,
-          "latitude": 32.0000
-        },
-        "poiType": ["Natural Wonder"],
-        "whereToStay": "Nomadic tents",
-        "howToGetThere": "Travel by road from Isfahan.",
-        "handicraft": "Woven rugs",
-        "food": "Dough (yogurt drink)",
-        "vibe": "Tranquil and picturesque",
-        "architect": null,
-        "style": "Natural",
-        "period": "Ongoing"
+        "id": "media-1",
+        "type": "Photo",
+        "url": "https://example.com/persepolis-aerial.jpg",
+        "description": "A stunning aerial photo of Persepolis.",
+        "thumbnail": "https://example.com/persepolis-thumbnail.jpg",
+        "icon": "https://example.com/persepolis-icon.png",
+        "source": "Internal Upload",
+        "linkedEntities": ["poi-1"]
       },
       {
-        "id": "poi-12",
-        "name": "Zard-Kuh Mountain",
-        "description": "A major landmark along the Bakhtiari migration route.",
-        "creationDate": "2023-10-15T12:00:00Z",
-        "type": "POI",
-        "icon": "https://example.com/zard-kuh-icon.png",
-        "featuredImage": "https://example.com/zard-kuh.jpg",
-        "links": ["route-2"],
-        "geoLocation": {
-          "longitude": 50.2000,
-          "latitude": 32.3000
-        },
-        "poiType": ["Natural Wonder"],
-        "whereToStay": "Nomadic tents",
-        "howToGetThere": "Travel by road from Isfahan.",
-        "handicraft": "Woven rugs",
-        "food": "Dough (yogurt drink)",
-        "vibe": "Rugged and majestic",
-        "architect": null,
-        "style": "Natural",
-        "period": "Ongoing"
+        "id": "media-2",
+        "type": "Video",
+        "url": "https://youtube.com/a-separation-trailer",
+        "description": "Official trailer for the film A Separation.",
+        "thumbnail": "https://example.com/a-separation-thumbnail.jpg",
+        "icon": "https://example.com/a-separation-icon.png",
+        "source": "YouTube",
+        "linkedEntities": ["film-1"]
       },
       {
-        "id": "poi-13",
-        "name": "Dez River Crossing",
-        "description": "A key crossing point for the Bakhtiari migration.",
-        "creationDate": "2023-10-15T12:00:00Z",
-        "type": "POI",
-        "icon": "https://example.com/dez-river-icon.png",
-        "featuredImage": "https://example.com/dez-river.jpg",
-        "links": ["route-2"],
-        "geoLocation": {
-          "longitude": 50.1000,
-          "latitude": 32.5000
-        },
-        "poiType": ["Natural Wonder"],
-        "whereToStay": "Nomadic tents",
-        "howToGetThere": "Travel by road from Isfahan.",
-        "handicraft": "Woven rugs",
-        "food": "Dough (yogurt drink)",
-        "vibe": "Adventurous and historic",
-        "architect": null,
-        "style": "Natural",
-        "period": "Ongoing"
+        "id": "media-3",
+        "type": "Article",
+        "url": "https://example.com/persepolis-history",
+        "description": "A detailed article about the history of Persepolis.",
+        "thumbnail": "https://example.com/persepolis-article-thumbnail.jpg",
+        "icon": "https://example.com/persepolis-icon.png",
+        "source": "Blog Post",
+        "linkedEntities": ["poi-1"]
       },
       {
-        "id": "event-2",
-        "name": "Bakhtiari Kooch (Migration)",
-        "description": "The annual migration of the Bakhtiari nomadic tribes.",
-        "creationDate": "2023-10-15T12:00:00Z",
-        "type": "Event",
-        "icon": "https://example.com/bakhtiari-kooch-icon.png",
-        "featuredImage": "https://example.com/bakhtiari-kooch.jpg",
-        "links": ["route-2"],
-        "eventType": "Cultural Festival",
-        "startDate": "2024-04-01",
-        "endDate": "2024-04-30",
-        "recurring": "Annually"
+        "id": "media-4",
+        "type": "SocialMediaPost",
+        "url": "https://instagram.com/persepolis-photo",
+        "description": "A popular Instagram post about Persepolis.",
+        "thumbnail": "https://example.com/persepolis-instagram-thumbnail.jpg",
+        "icon": "https://example.com/persepolis-icon.png",
+        "source": "Instagram",
+        "linkedEntities": ["poi-1"]
+      },
+      {
+        "id": "media-5",
+        "type": "Music",
+        "url": "https://example.com/isfahan-music.mp3",
+        "description": "Traditional music from Isfahan.",
+        "thumbnail": "https://example.com/isfahan-music-thumbnail.jpg",
+        "icon": "https://example.com/isfahan-music-icon.png",
+        "source": "Internal Upload",
+        "linkedEntities": ["event-1"]
       },
       {
         "id": "media-6",

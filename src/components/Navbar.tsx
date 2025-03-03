@@ -9,7 +9,7 @@ export function Navbar() {
     // Get unique types from mock data
     // const types = Array.from(new Set(mockData.entities.map(entity => entity.type.toLowerCase())))
 
-    const types = ['/', 'connections']
+    const types = ['/', 'connections', 'all-data']
 
     return (
         <div className="border-b">

@@ -23,6 +23,7 @@ export default function Home() {
       <POIDrawer
         isOpen={isDrawerOpen}
         selectedId={selectedId}
+        onClose={() => setIsDrawerOpen(false)}
       />
       <div className="mt-auto w-full z-10 pointer-events-none ">
         <SlideShow

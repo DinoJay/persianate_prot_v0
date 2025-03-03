@@ -19,17 +19,19 @@ export default function DrawerDialog({
     children,
     open,
     title,
+    onOpenChange,
     ...props
 }: {
     children: React.ReactNode;
     open?: boolean;
     title?: string;
+    onOpenChange?: (open: boolean) => void;
 }) {
     const isDesktop = useMediaQuery("(min-width: 768px)")
 
     if (isDesktop) {
         return (
-            <Dialog open={open} {...props}>
+            <Dialog open={open} onOpenChange={onOpenChange} {...props}>
                 {/* <DialogTrigger asChild>
                     <Button variant="outline">Edit Profile</Button>
                 </DialogTrigger> */}
@@ -48,7 +50,7 @@ export default function DrawerDialog({
     }
 
     return (
-        <Drawer open={open} {...props}>
+        <Drawer open={open} onOpenChange={onOpenChange} {...props}>
             {/* <DrawerTrigger asChild>
                 <Button variant="outline">Edit Profile</Button>
             </DrawerTrigger> */}
